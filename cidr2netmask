@@ -1,0 +1,25 @@
+#!/bin/bash
+# vi: set ts=4 sw=4 sts=0 et ft=sh fenc=utf-8 ff=unix :
+
+function help(){
+    echo "Type $0 num ( 0 <= num <= 32 )"
+    exit 1
+}
+
+num=$1
+
+if [[ ! ( "$num" =~ [0-9]+ ) ]]; then
+    help
+fi
+
+if ! ( [ "$num" -ge 0 ] && [ "$num" -le 32 ] ); then
+    echo "Invalid number."
+fi
+
+cidr=$( printf "%s\n" $(( 0xFFFFFFFF ^ ((2 ** (32-$num))-1) )) )
+
+printf "%d.%d.%d.%d\n" \
+    $(($cidr >> 24)) \
+    $(( ($cidr >> 16) & 0xFF)) \
+    $(( ($cidr >> 8) & 0xFF)) \
+    $(($cidr & 0xFF))

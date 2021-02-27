@@ -1,0 +1,25 @@
+#!/bin/bash
+# vi: set ts=4 sw=4 sts=0 et ft=sh fenc=utf-8 ff=unix :
+
+function help(){
+    echo "Type $0 num ( 0 <= num <= 4294967295 )"
+    exit 1
+}
+
+arg="$1"
+
+if [[ !( "${arg:-x}" =~ ^[0-9]+$ ) ]]; then
+    echo "Invalid argument."
+    help
+fi
+
+if ! ([ "$arg" -ge 0 ] && [ "$arg" -le 4294967295 ]); then
+    echo "Invalid number."
+    help
+fi
+
+printf "%d.%d.%d.%d\n" \
+    $(($arg >> 24)) \
+    $(( ($arg >> 16) & 0xFF)) \
+    $(( ($arg >> 8) & 0xFF)) \
+    $(($arg & 0xFF))
