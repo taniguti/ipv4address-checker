@@ -8,18 +8,20 @@ function help(){
 
 num=$1
 
-if [[ ! ( "$num" =~ [0-9]+ ) ]]; then
+if [[ ! ( "$num" =~ [0-9]{1,2} ) ]]; then
+    echo "Invalid argument.."
     help
 fi
 
-if ! ( [ "$num" -ge 0 ] && [ "$num" -le 32 ] ); then
+if [ "$num" -lt 0 ] || [ "$num" -gt 32 ]; then
     echo "Invalid number."
+    help
 fi
 
-cidr=$( printf "%s\n" $(( 0xFFFFFFFF ^ ((2 ** (32-$num))-1) )) )
+cidr=$( printf "%s\n" $(( 0xFFFFFFFF ^ (( 2 ** ( 32 - num )) -1 ) )) )
 
 printf "%d.%d.%d.%d\n" \
-    $(($cidr >> 24)) \
-    $(( ($cidr >> 16) & 0xFF)) \
-    $(( ($cidr >> 8) & 0xFF)) \
-    $(($cidr & 0xFF))
+    $(( cidr >> 24)) \
+    $(( ( cidr >> 16) & 0xFF)) \
+    $(( ( cidr >> 8) & 0xFF)) \
+    $(( cidr & 0xFF))
