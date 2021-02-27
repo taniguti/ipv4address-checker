@@ -8,21 +8,9 @@ function help(){
 
 function ip2decimal(){
     local addr="$1"
-    local n="$addr"
     local IFS=.
-
-    printf "%s\n" $(( \
-                      ( n[0] << 24 ) \
-                    | ( n[1] << 16 ) \
-                    | ( n[2] << 8 ) \
-                    | ( n[3] ) \
-                    ))
-}
-
-function chkarg(){
-    local addr="$1"
-    local n="$addr"
-    local IFS=.
+    # shellcheck disable=SC2206
+    local n=($addr)
 
     if [ "${n[0]}" -lt 0 ] \
       || [ "${n[1]}" -lt 0 ] \
@@ -35,6 +23,13 @@ function chkarg(){
         echo "Invalid argument." >&2
         help
     fi
+
+    printf "%s\n" $(( \
+                      ( n[0] << 24 ) \
+                    | ( n[1] << 16 ) \
+                    | ( n[2] << 8 ) \
+                    | ( n[3] ) \
+                    ))
 }
 
 arg="$1"
@@ -47,5 +42,4 @@ if [[ ! ("$arg" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$) ]]; then
     help
 fi
 
-chkarg "$arg"
 ip2decimal "$arg"
