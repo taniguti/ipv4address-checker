@@ -2,26 +2,28 @@
 # vi: set ts=4 sw=4 sts=0 et ft=sh fenc=utf-8 ff=unix :
 
 function help(){
-    echo "Type $0 num ( 0 <= num <= 32 )"
+    echo "Type $0 num ( 0 <= num <= 32 )" >&2
     exit 1
 }
 
 num=$1
 
-if [[ ! ( "$num" =~ [0-9]{1,2} ) ]]; then
-    echo "Invalid argument.."
+if [[ ! ( "${num:-x}" =~ [0-9]{1,2} ) ]]; then
+    echo "Invalid argument.." >&2
     help
 fi
 
 if [ "$num" -lt 0 ] || [ "$num" -gt 32 ]; then
-    echo "Invalid number."
+    echo "Invalid number." >&2
     help
 fi
 
 cidr=$( printf "%s\n" $(( 0xFFFFFFFF ^ (( 2 ** ( 32 - num )) -1 ) )) )
 
-printf "%d.%d.%d.%d\n" \
-    $(( cidr >> 24)) \
-    $(( ( cidr >> 16) & 0xFF)) \
-    $(( ( cidr >> 8) & 0xFF)) \
-    $(( cidr & 0xFF))
+pdir="$( dirname "$0" )"
+if [ -x "${pdir}/dec2ip" ]; then
+   "${pdir}/dec2ip" "$cidr"
+else
+    echo "Not found ${pdir}/dec2ip" >&2
+    exit 1
+fi
