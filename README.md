@@ -34,3 +34,9 @@ return code is 1
 192.168.54.56 is in 192.168.54.56/255.255.255.255 (STDERR)
 return code is 0
 ```
+
+## getnetworkrange
+```
+./getnetworkrange 192.168.54.16/29
+192.168.54.16 192.168.54.23 255.255.255.248
+```
