@@ -1,19 +1,18 @@
 #!/bin/bash
 # vi: set ts=4 sw=4 sts=0 et ft=sh fenc=utf-8 ff=unix :
 
-pdir="$( dirname "$0" )"
+pdir="$( dirname "$0")"
 DEC2IP="${pdir}/dec2ip"
 IP2DEC="${pdir}/ip2dec"
 CIDR2NET="${pdir}/cidr2netmask"
-for c in "$DEC2IP" "$IP2DEC" "$CIDR2NET"
-do
+for c in "$DEC2IP" "$IP2DEC" "$CIDR2NET"; do
     if [ ! -x "$c" ]; then
         echo "Not found $c" >&2
         exit 1
     fi
 done
 
-function help(){
+function help() {
     cat <<_HELP >&2
 Usage:
     $0 -i ipv4addr -r ipv4addr_range
@@ -34,16 +33,15 @@ _HELP
     exit 1
 }
 
-while getopts i:r:h sw
-do
+while getopts i:r:h sw; do
     case "$sw" in
-        i )
+        i)
             ipaddr="$OPTARG"
             ;;
-        r )
+        r)
             range="$OPTARG"
             ;;
-        h|*)
+        h | *)
             help
             ;;
     esac
@@ -53,27 +51,27 @@ if [ -z "$ipaddr" ] || [ -z "$range" ]; then
     help
 fi
 
-ipaddr_dec="$( "$IP2DEC" "$ipaddr" 2> /dev/null )"
-network="$( echo "$range" | awk -F'/' '{print $1}' )"
-mask="$( echo "$range" | awk -F'/' '{print $2}' )"
-network_dec="$( "$IP2DEC" "$network"  2> /dev/null)"
+ipaddr_dec="$( "$IP2DEC" "$ipaddr" 2>/dev/null)"
+network="$( echo "$range" | awk -F'/' '{print $1}')"
+mask="$( echo "$range" | awk -F'/' '{print $2}')"
+network_dec="$( "$IP2DEC" "$network"  2>/dev/null)"
 
 if [ -z "${mask:=255.255.255.255}" ]; then
-    mask_dec="$( "$IP2DEC" "$mask" )"
+    mask_dec="$( "$IP2DEC" "$mask")"
 elif [[ "$mask" =~ ^[0-9]{1,2}$ ]]; then
-    mask="$( "$CIDR2NET" "$mask" 2> /dev/null )"
-    mask_dec="$( "$IP2DEC" "$mask" 2> /dev/null )"
+    mask="$( "$CIDR2NET" "$mask" 2>/dev/null)"
+    mask_dec="$( "$IP2DEC" "$mask" 2>/dev/null)"
 else
-    mask_dec="$( "$IP2DEC" "$mask" 2> /dev/null )"
+    mask_dec="$( "$IP2DEC" "$mask" 2>/dev/null)"
 fi
 
 if [ -z "$ipaddr_dec" ] || [ -z "$network_dec" ] || [ -z "$mask_dec" ]; then
     help
 fi
 
-s_network="$( "$DEC2IP" "$(( network_dec & mask_dec ))" )"
-if [ "$ipaddr_dec" -ge "$(( network_dec & mask_dec ))" ] \
-   && [ "$ipaddr_dec" -le "$(( network_dec | (0xFFFFFFFF ^ mask_dec ) ))" ]; then
+s_network="$( "$DEC2IP" "$((network_dec & mask_dec))")"
+if [ "$ipaddr_dec" -ge "$((network_dec & mask_dec))"   ] \
+    && [ "$ipaddr_dec" -le "$((network_dec | (0xFFFFFFFF ^ mask_dec)))"   ]; then
     echo "$ipaddr is in ${s_network}/${mask}" >&2
     exit 0
 else
